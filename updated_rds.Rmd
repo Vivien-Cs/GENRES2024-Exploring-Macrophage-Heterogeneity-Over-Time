@@ -1,0 +1,161 @@
+---
+title: "Computational analysis of RNA-seq data"
+author: "Vivien Csonka"
+date: "17/06/2024"
+output: html_document
+---
+
+```{r setup, message=FALSE}
+## Load essential packages for scRNA-seq analysis
+# This sources an external script containing all necessary library imports.
+# The script '00_pkg.R' includes packages for data manipulation (e.g., dplyr),
+# visualisation (e.g., ggplot2), and scRNA-seq analysis (e.g., Seurat).
+# Sourcing this file ensures all required packages are loaded consistently
+# across the project, reducing redundancy and potential package-related errors.
+# *Please read README.md and sessioninfo.md to know what packages must be installed before running R scripts*
+source("G:/My Drive/Genres2024/Integrated_prepare/00_pkg.R")
+
+```
+
+
+```{r load_seurat, message=TRUE}
+# Load Seurat objects based on the specified condition
+# This section determines whether to load datasets using the AMDSG gene list or the standard method.
+# The 'use_amdsg' variable controls this behaviour:
+# - TRUE: Load datasets using the AMDSG gene list
+# - FALSE: Load all datasets without filtering by the AMDSG gene list
+
+#depending on condition variable (eg. TRUE for AMDSG and FALSE for standard) ***set this to TRUE if you want to run AMDSG genes, FALSE if you want to run standard ***
+use_amdsg <- TRUE
+
+# Source the appropriate data loading script based on the condition
+if (use_amdsg) {
+  message("running AMDSG")
+  source("G:/My Drive/Genres2024/Integrated_prepare/01_import_AMDSG.R")
+} else {
+  message("running standard")
+  source("G:/My Drive/Genres2024/Integrated_prepare/01_import_standard.R")
+}
+```
+
+
+```{r standard_reprocessing}
+# Standard Preprocessing of Seurat Objects
+# This script performs essential preprocessing steps on each Seurat object in the seuratObjList.
+# It includes quality control, gene filtering, and calculation of various metadata.
+# Detailed explanation of the preprocessing steps:
+# 1. Gene Filtering:
+#    - Removes specific genes ('Gm42418' and 'AY036118') that are known to represent rRNA contamination.
+#    - These genes overlap with the rRNA element Rn45s and are excluded to improve data quality.
+#
+# 2. Mitochondrial Gene Percentage:
+#    - Calculates the percentage of mitochondrial genes for each cell.
+#    - Adds this information as a new metadata column 'percent.mt'.
+#    - Filters out cells with high mitochondrial content (>10%), which often indicates low-quality or dying cells.
+#
+# 3. Ribosomal Protein Gene Percentages:
+#    - Calculates the percentage of ribosomal protein S (RPS) genes and adds it as 'percent.rps'.
+#    - Calculates the percentage of ribosomal protein L (RPL) genes and adds it as 'percent.rpl'.
+#    - These metrics can be useful for assessing cell quality and state.
+#
+# 4. Quality Control Visualisation:
+#    - Prints summary statistics for each processed Seurat object, allowing for quick assessment of the dataset.
+#
+# Note: The script is prepared for potential SCTransform normalisation (currently commented out),
+# which can be used for advanced normalisation and variance stabilisation if needed.
+
+# This preprocessing ensures that each Seurat object in seuratObjList is cleaned, 
+# filtered, and annotated with important quality metrics, preparing the data for 
+# downstream analysis such as clustering, differential expression, and trajectory inference.
+source("G:/My Drive/Genres2024/Integrated_prepare/02_preprocessing.R")
+```
+
+
+```{r merge}
+### This script merges multiple Seurat objects into a single object and performs essential preprocessing steps.
+# It includes merging datasets, normalisation using SCTransform, and dimensionality reduction using PCA.
+# 1. Merge Datasets:
+#    - Combines multiple Seurat objects from the seuratObjList into a single Seurat object.
+#    - This is necessary to create a unified dataset for consistent preprocessing and analysis.
+#
+# 2. Normalisation with SCTransform:
+#    - Applies SCTransform to the merged dataset for normalisation and variance stabilization.
+#    - The 'vst.flavor' parameter is set to "v2" for improved performance and accuracy.
+#    - SCTransform uses the glmGamPoi method to model the gene expression counts.
+#
+# 3. Dimensionality Reduction with PCA:
+#    - Runs Principal Component Analysis (PCA) on the normalised data to reduce its dimensionality.
+#    - PCA captures the most significant sources of variation in the data.
+#
+# 4. Elbow Plot Visualisation:
+#    - Generates an elbow plot to help determine the optimal number of principal components to use in downstream analysis.
+#
+# This preprocessing ensures that the merged Seurat object is normalised, dimensionally reduced, and ready for further analysis such as clustering and integration.
+source("G:/My Drive/Genres2024/Integrated_prepare/03_merge.R")
+```
+
+
+```{r integrate}
+# This script performs integration on the merged single-cell RNA sequencing datasets.
+# It offers two integration methods based on the 'use_amdsg' condition:
+# 1. AMDSG gene list-based integration
+# 2. Standard (full dataset) integration
+#
+# - The 'use_amdsg' variable determines which integration method to use.
+# - AMDSG Integration (if use_amdsg is TRUE):
+#   * Focuses on a specific set of genes (AMDSG gene list).
+#   * Useful for targeted analysis of certain biological processes or pathways.
+#   * May provide more focused results but could miss broader cellular differences.
+# - Standard Integration (if use_amdsg is FALSE):
+#   * Uses the entire dataset for integration.
+#   * Provides a comprehensive view of cellular heterogeneity across all genes.
+#   * Captures broader patterns but may be less sensitive to specific gene sets.
+#
+# Both integration methods:
+# 1. Use Harmony for batch correction and data integration.
+# 2. Perform clustering to identify cell populations.
+# 3. Apply dimensionality reduction for visualization (t-SNE for AMDSG, UMAP for standard).
+# 4. Generate visualizations to explore the integrated data.
+#
+# The choice between AMDSG and standard integration depends on the research question:
+# - Use AMDSG for focused analysis on specific genes or pathways of interest.
+# - Use standard integration for unbiased, comprehensive analysis of cellular heterogeneity.
+#
+# After running this script, 'seurat_integrated' will contain the integrated dataset,
+# ready for further analysis such as differential expression or trajectory inference.
+
+#  Load and execute the appropriate integration script based on the condition
+if (use_amdsg) {
+  # Load AMDSG integration
+  source("G:/My Drive/Genres2024/Integrated_prepare/04_AMDSG_integration.R")
+} else {
+  # Load standard integration data
+  source("G:/My Drive/Genres2024/Integrated_prepare/04_standard_integration.R")
+}
+```
+
+
+```{r dimensional reduction}
+#This script performs dimensionality reduction, clustering, and visualisation on the merged single-cell RNA sequencing data.
+source("G:/My Drive/Genres2024/Integrated_prepare/05_dimensional_reduction.R")
+```
+
+```{r trajectory and pseudotime}
+# -This line sources (loads and executes) an R script named "07_trajectories.R" located in the specified directory.
+# - The script performs trajectory analysis using Slingshot to infer cellular trajectories and order cells along pseudotime.
+# - It starts by loading the preprocessed merged Seurat object and converting it to a SingleCellExperiment object.
+# - Slingshot is then used to infer trajectories based on PCA-reduced dimensions and cluster labels.
+# - Pseudotime values are calculated and added to the Seurat object as metadata.
+# - The script visualises the inferred trajectories and creates a heatmap to show gene expression changes along pseudotime.
+# - The heatmap is saved as a PNG file for further analysis and interpretation.
+source("G:/My Drive/Genres2024/Integrated_prepare/06_trajectories.R")
+```
+
+```{r differential expression}
+
+source("G:/My Drive/Genres2024/Integrated_prepare/07_differential_expression.R")
+```
+
+
+
+
