@@ -14,7 +14,6 @@ output: html_document
 # across the project, reducing redundancy and potential package-related errors.
 # *Please read README.md and sessioninfo.md to know what packages must be installed before running R scripts*
 source("G:/My Drive/Genres2024/Integrated_prepare/00_pkg.R")
-
 ```
 
 
@@ -31,10 +30,10 @@ use_amdsg <- TRUE
 # Source the appropriate data loading script based on the condition
 if (use_amdsg) {
   message("running AMDSG")
-  source("G:/My Drive/Genres2024/Integrated_prepare/01_import_AMDSG.R")
+  source("Integrated_prepare/01_import_AMDSG.R")
 } else {
   message("running standard")
-  source("G:/My Drive/Genres2024/Integrated_prepare/01_import_standard.R")
+  source("Integrated_prepare/01_import_standard.R")
 }
 ```
 
@@ -67,7 +66,7 @@ if (use_amdsg) {
 # This preprocessing ensures that each Seurat object in seuratObjList is cleaned, 
 # filtered, and annotated with important quality metrics, preparing the data for 
 # downstream analysis such as clustering, differential expression, and trajectory inference.
-source("G:/My Drive/Genres2024/Integrated_prepare/02_preprocessing.R")
+source("Integrated_prepare/02_preprocessing.R")
 ```
 
 
@@ -79,7 +78,7 @@ source("G:/My Drive/Genres2024/Integrated_prepare/02_preprocessing.R")
 #    - This is necessary to create a unified dataset for consistent preprocessing and analysis.
 #
 # 2. Normalisation with SCTransform:
-#    - Applies SCTransform to the merged dataset for normalisation and variance stabilization.
+#    - Applies SCTransform to the merged dataset for normalisation and variance stabilisation.
 #    - The 'vst.flavor' parameter is set to "v2" for improved performance and accuracy.
 #    - SCTransform uses the glmGamPoi method to model the gene expression counts.
 #
@@ -91,7 +90,7 @@ source("G:/My Drive/Genres2024/Integrated_prepare/02_preprocessing.R")
 #    - Generates an elbow plot to help determine the optimal number of principal components to use in downstream analysis.
 #
 # This preprocessing ensures that the merged Seurat object is normalised, dimensionally reduced, and ready for further analysis such as clustering and integration.
-source("G:/My Drive/Genres2024/Integrated_prepare/03_merge.R")
+source("Integrated_prepare/03_merge.R")
 ```
 
 
@@ -127,17 +126,17 @@ source("G:/My Drive/Genres2024/Integrated_prepare/03_merge.R")
 #  Load and execute the appropriate integration script based on the condition
 if (use_amdsg) {
   # Load AMDSG integration
-  source("G:/My Drive/Genres2024/Integrated_prepare/04_AMDSG_integration.R")
+  source("Integrated_prepare/04_AMDSG_integration.R")
 } else {
   # Load standard integration data
-  source("G:/My Drive/Genres2024/Integrated_prepare/04_standard_integration.R")
+  source("Integrated_prepare/04_standard_integration.R")
 }
 ```
 
 
 ```{r dimensional reduction}
 #This script performs dimensionality reduction, clustering, and visualisation on the merged single-cell RNA sequencing data.
-source("G:/My Drive/Genres2024/Integrated_prepare/05_dimensional_reduction.R")
+source("Integrated_prepare/05_dimensional_reduction.R")
 ```
 
 ```{r trajectory and pseudotime}
@@ -148,12 +147,12 @@ source("G:/My Drive/Genres2024/Integrated_prepare/05_dimensional_reduction.R")
 # - Pseudotime values are calculated and added to the Seurat object as metadata.
 # - The script visualises the inferred trajectories and creates a heatmap to show gene expression changes along pseudotime.
 # - The heatmap is saved as a PNG file for further analysis and interpretation.
-source("G:/My Drive/Genres2024/Integrated_prepare/06_trajectories.R")
+source("Integrated_prepare/06_trajectories.R")
 ```
 
 ```{r differential expression}
 
-source("G:/My Drive/Genres2024/Integrated_prepare/07_differential_expression.R")
+source("Integrated_prepare/07_differential_expression.R")
 ```
 
 
