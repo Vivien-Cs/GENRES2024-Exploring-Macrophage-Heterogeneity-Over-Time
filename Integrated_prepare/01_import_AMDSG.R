@@ -36,7 +36,6 @@ for (sample in 1:length(lstSamples)){
   print(seuratObjList[[lstSamples[[sample]]]])
 }
 
-# 
 #######    load 48hr  ################
 # Repeat the loading and processing steps for the 48-hour datasets (including M0 at 0 hour) 
 lstSamples_48h <- c("M0_0h_48", "M1_48h")  
@@ -52,7 +51,6 @@ for (sample in 1:length(lstSamples_48h)) {
   seuratObj <- CreateSeuratObject(counts = seuratObj, project = lstSamples_48h[[sample]], min.cells = 3, min.features = 200)
   seuratObj$condition <- condition
   seuratObj$time_pt <- lstTime_48h[[sample]]
-  
 
 # Subset to include only specified genes at the end
   seuratObj <- subset(seuratObj, features = gene_names)
@@ -68,12 +66,12 @@ for (sample in 1:length(lstSamples_48h)) {
 
 #### load 2,4,6hr dataset ######
 # repeat the same steps for the 2, 4, 6-hour datasets.
-lstSamples_2_4_6h <- c("mouse1_two", "mouse1_four", "mouse1_six",
-                       "mouse2_two", "mouse2_four", "mouse2_six",
-                       "mouse3_two", "mouse3_four", "mouse3_six",
-                       "mouse1_zero", "mouse2_zero", "mouse3_zero")
+lstSamples_2_4_6h <- c("M1_2h_rep1", "M1_4h_rep1", "M1_6h_rep1",
+                       "M1_2h_rep2", "M1_4h_rep2", "M1_6h_rep2",
+                       "M1_2h_rep3", "M1_4h_rep3", "M1_6h_rep3",
+                       "M0_0h_rep1", "M0_0h_rep2", "M0_0h_rep3")
 lstConditions_2_4_6h <- c("M1", "M1", "M1", "M1", "M1", "M1", "M1", "M1", "M1","M0","M0","M0")
-path_2_4_6hr <- paste0(base_path,"/data_raw/E_MTAB_6754_2_4_6hr_RAW")
+path_2_4_6hr <- paste0(base_path,"/data_raw/E_MTAB_6754_2_4_6hr_RAW/")
 lstTime_2_4_6hr <- c("two", "four", "six","two", "four", "six","two", "four", "six","zero", "zero", "zero")
 
 print(paste("Loading data from: ", data_dir))
@@ -98,10 +96,4 @@ for (sample in 1:length(lstSamples_2_4_6h)) {
   seuratObjList[[lstSamples_2_4_6h[[sample]]]] <- seuratObj
   print(seuratObjList[[lstSamples_2_4_6h[[sample]]]])
 }
-
-
-
-
-
-
 

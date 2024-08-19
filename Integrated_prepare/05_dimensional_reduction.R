@@ -7,6 +7,9 @@ seurat_merged <- RunTSNE(seurat_merged, reduction = "pca", dims = 1:18, check_du
 
 saveRDS(seurat_merged, paste0("preprocessed_merged_dims4_",res,".Rds"))
 
+#combine time and condition 
+seurat_merged$condition_time <- paste0(seurat_merged$condition,"_",seurat_merged$time_pt)
+
 DimPlot(seurat_merged, label = TRUE, label.box = TRUE)+NoLegend()+
   DimPlot(seurat_merged, reduction="umap", group.by = "condition_time",pt.size = 1.5, label.size = 8)+NoLegend()
 DimPlot(seurat_merged, reduction="tsne", label = TRUE, label.box = TRUE, pt.size = 1.5, label.size = 8)+NoLegend()

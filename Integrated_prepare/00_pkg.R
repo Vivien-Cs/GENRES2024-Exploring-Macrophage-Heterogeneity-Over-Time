@@ -23,7 +23,7 @@ library(SingleCellExperiment)
 setwd("G:/My Drive/Genres2024")
 
 # Define the base path for the project.
-base_path<- "G:/My Drive/Genres2024/"
+base_path<- "G:/My Drive/Genres2024"
 #save all files and folder within your working directory or working directory/your_custom_folder_name/
 #update exp_path if you have a your_custom_folder_name within working directory 
 # check if sub directory exists 
@@ -49,3 +49,4 @@ dir.create(paste0(output_integrated, "group_comparisons"))
 dir.create(paste0(output_integrated, "markers"))
 dir.create(paste0(output_integrated, "markers_merged"))
 dir.create(paste0(output_integrated, "phenotyping"))
+
