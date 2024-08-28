@@ -6,9 +6,9 @@ seuratObjList<-list()
 # are available under exp_path 
 
 # Define the samples, corresponding time points, and conditions.
-lstSamples <- c("M0_0h","M0_6h","M0_24h","M1_6h","M1_24h")
-lstTime <- c("zero","six","twenty4","six","twenty4")
-lstConditions <- c("M0","M0","M0","M1","M1")
+lstSamples <- c("M0_0h", "M0_6h", "M0_24h", "M1_LPS_IFNG_6h", "M1_LPS_IFNG_24h")
+lstTime <- c("zero", "six", "twenty4", "six", "twenty4", "six", "twenty4")
+lstConditions <- c("M0_Liu_2020", "M0_Liu_2020", "M0_Liu_2020", "M1_LPS_IFNG_Liu_2020", "M1_LPS_IFNG_Liu_2020")
 
 #Loop through each sample to load the data, create Seurat objects, and perform QC and variable feature selection.
 for (sample in 1:length(lstSamples)){
@@ -36,10 +36,11 @@ for (sample in 1:length(lstSamples)){
 
 #######    load 48hr  ################
 # Load 48-hour datasets correctly including M0 at 0 hour
-lstSamples_48h <- c("M0_0h_48", "M1_48h")  
+lstSamples_48h <- c("M0_0h_48", "M1_LPS_IFNG_48h") 
 lstTime_48h <- c("zero", "fourty8")
-lstConditions_48h <- c("M0", "M1")
-path_48hr <- paste0(base_path,"/data_raw/GSE117176_48hr_RAW")
+lstConditions_48h <- c("Media_48_JCI", "M1_LPS_IFNG_48_JCI") 
+path_48hr <- paste0(base_path,"/data_raw/GSE117176_48hr_RAW/")
+
 
 for (sample in 1:length(lstSamples_48h)) {
   condition <- lstConditions_48h[[sample]]
@@ -61,11 +62,16 @@ for (sample in 1:length(lstSamples_48h)) {
 }
 
 #### load 2,4,6hr dataset ######
-lstSamples_2_4_6h <- c("M1_2h_rep1", "M1_4h_rep1", "M1_6h_rep1",
-                       "M1_2h_rep2", "M1_4h_rep2", "M1_6h_rep2",
-                       "M1_2h_rep3", "M1_4h_rep3", "M1_6h_rep3",
-                       "M0_0h_rep1", "M0_0h_rep2", "M0_0h_rep3")
-lstConditions_2_4_6h <- c("M1", "M1", "M1", "M1", "M1", "M1", "M1", "M1", "M1","M0","M0","M0")
+# repeat the same steps for the 2, 4, 6-hour datasets.
+lstSamples_2_4_6h <- c("LPS_M1_2h_rep1", "LPS_M1_4h_rep1", "LPS_M1_6h_rep1",
+                       "LPS_M1_2h_rep2", "LPS_M1_4h_rep2", "LPS_M1_6h_rep2",
+                       "LPS_M1_2h_rep3", "LPS_M1_4h_rep3", "LPS_M1_6h_rep3",
+                       "Med_M0_0h_rep1", "Med_M0_0h_rep2", "Med_M0_0h_rep3")
+
+lstConditions_2_4_6h <- c("LPS_M1_Hagai_2018", "LPS_M1_Hagai_2018", "LPS_M1_Hagai_2018", 
+                          "LPS_M1_Hagai_2018", "LPS_M1_Hagai_2018", "LPS_M1_Hagai_2018", 
+                          "LPS_M1_Hagai_2018", "LPS_M1_Hagai_2018", "LPS_M1_Hagai_2018", 
+                          "Media_M0_Hagai_2018", "Media_M0_Hagai_2018", "Media_M0_Hagai_2018")
 path_2_4_6hr <- paste0(base_path,"/data_raw/E_MTAB_6754_2_4_6hr_RAW/")
 lstTime_2_4_6hr <- c("two", "four", "six","two", "four", "six","two", "four", "six","zero", "zero", "zero")
 
@@ -88,3 +94,4 @@ for (sample in 1:length(lstSamples_2_4_6h)) {
   seuratObjList[[lstSamples_2_4_6h[[sample]]]] <- seuratObj
   print(seuratObjList[[lstSamples_2_4_6h[[sample]]]])
 }
+

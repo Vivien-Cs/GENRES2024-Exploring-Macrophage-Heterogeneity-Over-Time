@@ -24,5 +24,4 @@ for (sample_name in names(seuratObjList)) {
   saveRDS(seuratObj, file = paste0(output_integrated, "preprocessed_seuratObj_", sample_name, ".rds"))
 }
 # seuratObjList <- lapply(X = seuratObjList, FUN = SCTransform, method = "glmGamPoi", vars.to.regress = c("percent.mt", "percent.rps", "percent.rpl", "nCount_RNA", "nFeature_RNA"), verbose = TRUE)
-                      
-                      
+    
