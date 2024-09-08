@@ -17,18 +17,13 @@ for (sample in 1:length(lstSamples)){
   seuratObj$condition <- lstConditions[[sample]]
   seuratObj$time_pt <- lstTime[[sample]]
   
-# Identify the 2,000 most variable features for downstream analysis.
-  seuratObj <- FindVariableFeatures(seuratObj, 
-                                    selection.method = "vst", 
-                                    nfeatures = 2000)
-  
 # Visualise feature distributions with violin plots. 
   p1 <- VlnPlot(seuratObj, features = c("nFeature_RNA", "nCount_RNA"), ncol = 2, pt.size = 0.1)
   print(seuratObj)
   p2 <- FeatureScatter(seuratObj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
   
   print(p2+p1)
-  #seuratObj <- subset(seuratObj, subset = nFeature_RNA > 500 & nFeature_RNA < 4500 & nCount_RNA < 20000 & nCount_RNA > 1000)
+  seuratObj <- subset(seuratObj, subset = nFeature_RNA > 500 & nFeature_RNA < 4500 & nCount_RNA < 20000 & nCount_RNA > 1000)
   
   seuratObjList[[lstSamples[[sample]]]] <- seuratObj
   print(seuratObjList[[lstSamples[[sample]]]])
@@ -50,13 +45,12 @@ for (sample in 1:length(lstSamples_48h)) {
   seuratObj <- CreateSeuratObject(counts = seuratObj, project = lstSamples_48h[[sample]], min.cells = 3, min.features = 200)
   seuratObj$condition <- condition
   seuratObj$time_pt <- lstTime_48h[[sample]]
-  seuratObj <- FindVariableFeatures(seuratObj, selection.method = "vst", nfeatures = 2000)
   
   p1 <- VlnPlot(seuratObj, features = c("nFeature_RNA", "nCount_RNA"), ncol = 2, pt.size = 0.1)
   print(seuratObj)
   p2 <- FeatureScatter(seuratObj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
   print(p2 + p1)
-  
+  seuratObj <- subset(seuratObj, subset = nFeature_RNA > 500 & nFeature_RNA < 4500 & nCount_RNA < 20000 & nCount_RNA > 1000)
   seuratObjList[[lstSamples_48h[[sample]]]] <- seuratObj
   print(seuratObjList[[lstSamples_48h[[sample]]]])
 }
@@ -84,13 +78,12 @@ for (sample in 1:length(lstSamples_2_4_6h)) {
   seuratObj <- CreateSeuratObject(counts = seuratObj, project = lstSamples_2_4_6h[[sample]], min.cells = 3, min.features = 200)
   seuratObj$condition <- condition
   seuratObj$time_pt <-lstTime_2_4_6hr[[sample]]
-  seuratObj <- FindVariableFeatures(seuratObj, selection.method = "vst", nfeatures = 2000)
   
   p1 <- VlnPlot(seuratObj, features = c("nFeature_RNA", "nCount_RNA"), ncol = 2, pt.size = 0.1)
   print(seuratObj)
   p2 <- FeatureScatter(seuratObj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
   print(p2 + p1)
-  
+  seuratObj <- subset(seuratObj, subset = nFeature_RNA > 500 & nFeature_RNA < 4500 & nCount_RNA < 20000 & nCount_RNA > 1000)
   seuratObjList[[lstSamples_2_4_6h[[sample]]]] <- seuratObj
   print(seuratObjList[[lstSamples_2_4_6h[[sample]]]])
 }

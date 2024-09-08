@@ -7,11 +7,19 @@ seurat_integrated <- IntegrateLayers(
   verbose = FALSE
 )
 
-seurat_integrated <- FindNeighbors(seurat_integrated, reduction = "harmony", dims = 1:10)
-seurat_integrated <- FindClusters(seurat_integrated, resolution = 0.2, cluster.name = "harmony_clusters")
-seurat_integrated <- RunUMAP(seurat_integrated, reduction = "harmony", dims = 1:10)
+seurat_integrated <- FindNeighbors(seurat_integrated, reduction = "harmony", dims = 1:20)
+seurat_integrated <- FindClusters(seurat_integrated, resolution = 0.6, cluster.name = "harmony_clusters")
+seurat_integrated <- RunUMAP(seurat_integrated, reduction = "harmony", dims = 1:20)
+
+plot <- DimPlot(seurat_integrated, label = T, label.box = T) + NoLegend()
+plot + DimPlot(seurat_integrated, group.by = "condition_time", cols = c("red","maroon","darkred","orange","orange2","green","darkseagreen","aquamarine","purple","darkorchid1","pink"))
+
+pc <- DimPlot(seurat_integrated, reduction = "pca", dims = c(1, 2))
+pc <- DimPlot(seurat_integrated, group.by= "condition")
+ggsave("G:/My Drive/Genres2024/output/pc_condition_0.2_standard.pdf", plot = pc, width = 10, height = 8)
 
 all_cell <- DimPlot(seurat_integrated, label.box = T, label = T)
+ggsave("G:/My Drive/Genres2024/output/all_cell_0.2_standard.pdf", plot = all_cell, width = 10, height = 8)
 
 # Save the plot as a PDF file
 ggsave("G:/My Drive/Genres2024/output/all_cells_0.2_standard.pdf", plot = all_cell, width = 10, height = 8)
@@ -21,7 +29,7 @@ seurat_integrated$time_pt <- factor(seurat_integrated$time_pt, levels = c("zero"
 
 
 # Create the plot and store it in a variable
-split_plot <- DimPlot(seurat_integrated, split.by = "condition", ncol= 5)
+split_plot <- DimPlot(seurat_integrated, group.by = "condition_time")
 # Save the plot as a PDF file
 ggsave("G:/My Drive/Genres2024/output/split_by_condition_0.2_standard.pdf", plot = split_plot, width = 35, height = 10)
 
@@ -29,7 +37,8 @@ ggsave("G:/My Drive/Genres2024/output/split_by_condition_0.2_standard.pdf", plot
 tnf_split_plot <- FeaturePlot(seurat_integrated, features = "Tnf", split.by = "condition_time", ncol = 5)
 ggsave("G:/My Drive/Genres2024/output/tnf_by_condition_time_standard_0.02.pdf", plot = tnf_split_plot, width = 30, height = 20)
 
-
+#DE ANALYSIS very straightforward
+markers <- FindAllMarkers(seurat_integrated)
 
 ######### Count table ################
 condition_counts <- table(Idents(seurat_integrated), seurat_integrated$condition)
@@ -69,3 +78,11 @@ write.csv(time_counts, "G:/My Drive/Genres2024/output/time_counts_standard.csv")
 write.csv(time_percentages, "G:/My Drive/Genres2024/output/time_percentages_standard.csv")
 
 #FeaturePlot(seurat_integrated, features = "Tnf", split.by = "condition_time")
+
+
+
+
+
+
+
+DimPlot(seurat_integrated, group.by = "condition_time",cols = c("red","maroon","darkred","orange","orange2","green","darkseagreen","aquamarine","purple","darkorchid1","pink"))

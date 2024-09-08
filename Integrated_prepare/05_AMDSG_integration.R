@@ -5,27 +5,29 @@ seurat_integrated <- IntegrateLayers(
   verbose = FALSE
 )
 
-valid_genes <- gene_names[gene_names %in% rownames(seurat_integrated)]
+#valid_genes <- gene_names[gene_names %in% rownames(seurat_integrated)]
 
 #seurat_integrated <- RunUMAP(seurat_integrated, features = valid_genes)
 ElbowPlot(seurat_integrated)
 
-seurat_integrated <- FindNeighbors(seurat_integrated, dims = 1:15, reduction = "harmony")
+seurat_integrated <- FindNeighbors(seurat_integrated, dims = 1:10, reduction = "harmony")
 seurat_integrated <- FindClusters(seurat_integrated, resolution = 0.2, cluster.name = "AMDSG_48hr_clusters")
-seurat_integrated <- RunUMAP(seurat_integrated, dims = 1:15, reduction = "harmony")
+seurat_integrated <- RunUMAP(seurat_integrated, dims = 1:10, reduction = "harmony")
 
+pc <- DimPlot(seurat_integrated, reduction = "pca", dims = c(1, 2))
+ggsave("G:/My Drive/Genres2024/output/all_cells_pc_0.02_amdsg_psg.pdf", plot = pc , width = 10, height = 8)
 #RUN ALL CELLS
 all_cell <- DimPlot(seurat_integrated, label.box = T, label = T)
-#SAVE
-ggsave("G:/My Drive/Genres2024/output/all_cells_0.02_amdsg_psg.pdf", plot = all_cell, width = 10, height = 8)
+# #SAVE
+ ggsave("G:/My Drive/Genres2024/output/all_cells_0.02_amdsg_psg.pdf", plot = all_cell, width = 10, height = 8)
 
 # Reorder the levels of the time_pt factor
 seurat_integrated$time_pt <- factor(seurat_integrated$time_pt, levels = c("zero", "two", "four", "six", "twenty4", "fourty8"))
 # seurat_integrated$condition <- factor(seurat_integrated$condition, 
 #                                       levels = c("M0_Liu_2020", "M1_LPS_IFNG_Liu_2020", "Media_48_JCI", "M1_LPS_IFNG_48_JCI", "Media_M0_Hagai_2018", "LPS_M1_Hagai_2018"))
-
-split_plot <- DimPlot(seurat_integrated, split.by = "condition_time", ncol = 5)
-ggsave("G:/My Drive/Genres2024/output/split_by_condition_time_amdsg_psg_0.02.pdf", plot = split_plot, width = 15, height = 20)
+condition_Time_col <- c()
+split_plot <- DimPlot(seurat_integrated, group.by = "condition_time")
+ggsave("G:/My Drive/Genres2024/output/split_by_condition_time_amdsg_psg_0.02.pdf", plot = split_plot, width = 8, height = 20)
 
 tnf_split_plot <- FeaturePlot(seurat_integrated, features = "Tnf", split.by = "condition_time", ncol = 4)
 ggsave("G:/My Drive/Genres2024/output/tnf_by_condition_time_amdsg_0.02.pdf", plot = tnf_split_plot, width = 30, height = 20)
@@ -33,6 +35,11 @@ ggsave("G:/My Drive/Genres2024/output/tnf_by_condition_time_amdsg_0.02.pdf", plo
 
 
 ### count###
+save_path = "G:/My Drive/Genres2024/output/"
+counts <- prop.table(table(Idents(seurat_integrated), seurat_integrated$orig.ident), margin = 2)
+#write proportion per cell type
+write.csv(counts, paste0(save_path,"amdsg_psg_proportions.csv"), row.names =TRUE)
+
 
 # Count table
 condition_counts <- table(Idents(seurat_integrated), seurat_integrated$condition)

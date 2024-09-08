@@ -7,9 +7,25 @@ seurat_merged <- merge(
 #SCTransform setting method as glmGamPoi
 seurat_merged <- SCTransform(seurat_merged, vst.flavor = "v2")
 
+#top_2000 <- head(VariableFeatures(seurat_merged), 2000)
+#write.csv(top_2000, "G:/My Drive/Genres2024/output/top_2000.csv", row.names = FALSE)
+
+#COME BACK TO THIS!!!
+# variable_plot <-VariableFeatSurePlot(
+#   seurat_merged,
+#   cols = c("black", "red"),
+#   pt.size = 1,
+# ) + LabelPoints(plot = VariableFeaturePlot(seurat_merged),
+#                 points = top_500,
+#                 repel = TRUE)
+# print(variable_plot)
+
+seurat_merged <- ScaleData(seurat_merged, features = gene_names)
+
 seurat_merged <- RunPCA(seurat_merged, features = gene_names)
-# seurat_merged <- RunPCA(seurat_merged)
+
 ElbowPlot(seurat_merged)
+
 
 # # SCTransform and merging can be saved as an RDS file for faster run, outline a path for it to save
 # output_path <- "G:/My Drive/Genres2024/R/"
@@ -26,7 +42,7 @@ seurat_merged$condition_time <- factor(seurat_merged$condition_time,
                                                  "LPS_M1_Hagai_2018_two", "LPS_M1_Hagai_2018_four", "LPS_M1_Hagai_2018_six", 
                                                  "M1_LPS_IFNG_Liu_2020_six","M1_LPS_IFNG_Liu_2020_twenty4",
                                                  "M1_LPS_IFNG_48_JCI_fourty8"))
-DimPlot(seurat_merged, split.by = "condition_time")
+DimPlot(seurat_merged, group.by = "condition")
 # Save the plot as a PDF file
 # ######## total cell count ###############
 # # Create a table of cell counts by condition and time point

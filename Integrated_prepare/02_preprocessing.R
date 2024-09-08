@@ -17,6 +17,7 @@ for (sample_name in names(seuratObjList)) {
   
   print(seuratObj)
   
+  
   # Update the object in the list
   seuratObjList[[sample_name]] <- seuratObj
   
