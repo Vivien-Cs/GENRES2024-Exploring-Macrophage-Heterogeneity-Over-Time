@@ -68,7 +68,7 @@ BioCManager is used to install and manage packages from the Bioconductor project
 **`BiocManager::install("MAST")`**
 
 
-# Author and Contact
+# Author and contact
 
 This project was created by **Vivien Csonka** under the supervision of **Shoumit Dey**. 
 For questions or issues, please reach out via email: [shoumit.dey@york.ac.uk].
