@@ -1,0 +1,146 @@
+---
+title: "MACHS VIVIEN"
+author: "vivien csonka"
+date: "2024-09-08"
+output: html_document
+---
+
+#Instructions:
+- Start in order but if pre-processing and QC has been run before skip to step 4 right after executing step 2
+- Ensure you update paths like base_path in step 1 to match your local file system before running the script.
+- Before each step, ensure the necessary .rds files or data are available, especially if you're starting from a later point in the workflow.
+- If you encounter missing data or .rds files, you must return to earlier steps (e.g., data preprocessing or integration) to generate them.
+- Check the README.md for specific package dependencies. You may need to install missing packages if you are running the script on a new system.
+
+
+1. Load packages and essential gene lists
+```{r setup, include=FALSE}
+## Load essential packages for scRNA-seq analysis
+# This sources an external script containing all necessary library imports.
+# The script '00_pkg.R' includes packages for data manipulation (e.g., dplyr),
+# visualisation (e.g., ggplot2), and scRNA-seq analysis (e.g., Seurat).
+# **Important:** You need to change the 'base_path' variable to match the directory structure on your local machine. The 'base_path' specifies the root directory of the project. Ensure that it points to the correct location where your project files are stored.
+# The 'code_path' variable builds upon 'base_path' to locate the 'Integrated_prepare' directory, which contains the '00_pkg.R' script.
+# *Please read README.md and sessioninfo.md to know what packages must be installed before running R scripts*
+base_path <- "G:/My Drive/Viv_MACHS/"
+code_path <- paste0(base_path, "Integrated_prepare/")
+source(paste0(code_path, "00_pkg.R"))
+```
+2. Import data 
+```{r datasets}
+# This sources an external script that handles the loading of raw data files.
+# The script '01_import_data.R' imports all necessary datasets for downstream analysis.
+# These datasets are processed into Seurat objects that will be used throughout the project.
+# It ensures the datasets are loaded consistently and reduces the chances of errors due to missing data files.
+# 
+source(paste0(code_path, "01_import_data.R"))
+```
+3. Pre-process all datasets
+```{r pre-processing, echo=FALSE}
+# This script performs essential preprocessing steps on each Seurat object in the seuratObjList.
+# It includes quality control, gene filtering, and calculation of various metadata. 
+# These steps are critical for ensuring that the data is clean and ready for downstream analysis.
+#
+# Detailed explanation of the preprocessing steps:
+# 1. **Gene Filtering**:
+#    - Removes specific genes (e.g., 'Gm42418' and 'AY036118') that are known to represent rRNA contamination.
+#    - These genes overlap with the rRNA element Rn45s and are excluded to improve data quality and accuracy in downstream analyses.
+# 2. **Mitochondrial Gene Percentage**:
+#    - Calculates the percentage of mitochondrial genes for each cell.
+#    - This information is added as a new metadata column, 'percent.mt'.
+#    - Filters out cells with high mitochondrial content (commonly >10%), which often indicates low-quality or dying cells.
+# 3. **Ribosomal Protein Gene Percentages**:
+#    - Calculates the percentage of ribosomal protein S (RPS) genes and adds it as 'percent.rps'.
+#    - Calculates the percentage of ribosomal protein L (RPL) genes and adds it as 'percent.rpl'.
+#    - These metrics can be useful for assessing cell quality and detecting stressed or actively translating cells.
+# 4. **Quality Control Visualisation**:
+#    - Produces visualizations such as violin plots and scatter plots to show distributions of quality metrics (e.g., nFeature_RNA, nCount_RNA).
+#    - Prints summary statistics for each processed Seurat object, allowing for quick assessment of dataset quality.
+# 5. **Save Preprocessed Objects**:
+#    - After preprocessing, the list of Seurat objects (seuratObjList) is saved as an RDS file for later use.
+#    - The file is saved to the 'output_integrated' directory with the name 'preprocessed_seuratObjList.rds'.
+#    - This allows you to load the preprocessed data in future analyses without needing to repeat the preprocessing steps.
+# This preprocessing ensures that each Seurat object in seuratObjList is cleaned, filtered, and annotated with essential quality metrics.
+# The processed data is now ready for downstream analyses, such as clustering, differential expression analysis, and trajectory inference.
+
+source("02_preprocessing.R")
+```
+4. Start here if pre-processed data is available
+```{r load seurat object list, echo=FALSE}
+# This code loads the preprocessed Seurat object list that was previously saved as an RDS file.
+# This step eliminates the need to re-run the preprocessing script, saving time when performing downstream analyses.
+# Make sure that the 'preprocessed_seuratObjList.rds' file exists in the specified directory before running this code.
+seuratObjList <- readRDS(paste0(output_integrated, "preprocessed_seuratObjList.rds"))
+seuratObjList <- readRDS(paste0(output_integrated, "preprocessed_seuratObjList.rds"))
+```
+5. Merge and integrate both in standard and gene list space
+```{r merge and integrate, echo=FALSE}
+# This code performs merging and integration of multiple Seurat objects for downstream analysis.
+
+### Merge Datasets ###
+#Merges multiple Seurat objects from `seuratObjList` into one object (`seurat_merged`).
+#Combines by condition and time, adding a new metadata column `condition_time`.
+#Reorders `condition_time` levels to match the desired sequence for analysis.
+
+### SCTransform Normalisation ###
+#Applies SCTransform with the glmGamPoi method, normalising the data and adjusting for mitochondrial and ribosomal content (`percent.mt`, `percent.rps`, `percent.rpl`).
+#Saves the top 2000 variable features to a CSV file.
+
+# ### AMDSG/PSG Workflow ###
+# Loads the gene lists (AMDSG/PSG) from Excel files for focused analysis.
+# Performs PCA using the gene list and displays an elbow plot for the PCA results.
+# Integrates data using the Harmony method and saves the integrated object.
+
+# ### Standard Workflow ###
+# Scales data using the top 2000 variable features for general analysis.
+# Runs PCA and displays an elbow plot for the standard workflow.
+# Integrates data using the Harmony method and saves the integrated object.
+
+# **Note:** Integrated objects are saved as `.rds` files for future use.
+source("03_merge_and_integrate.R")
+```
+6. Start here if integrated object is available
+```{r read integrated objects, echo=FALSE}
+# **Important:** You can only start from this point if you already have the integrated Seurat objects saved as `.rds` files.
+# If the integration has not been completed or the `.rds` files are missing, you need to run the merging and integration steps above first.
+# 
+# This step loads the pre-integrated Seurat objects, saving time by avoiding re-running the merge and integration process:
+# `seurat_integrated_genelist`: AMDSG/PSG gene list-based integration.
+# `seurat_integrated_standard`: Standard workflow integration using the top 2000 variable genes.
+seurat_integrated_genelist<-readRDS(paste0(output_integrated, "seurat_integrated_amdsg_psg.rds"))  
+seurat_integrated_standard<-readRDS(paste0(output_integrated, "seurat_integrated_standard.rds"))  
+```
+7. Run clustering
+```{r clustering, echo=FALSE}
+# This code sources '04_clustering.R', which performs clustering, dimensionality reduction, and visualisation for both the standard and AMDSG/PSG workflows.
+
+# **Standard Workflow:**
+# Finds neighbors (PCA, dims 1-10), identifies clusters (resolution 0.2), and runs UMAP for visualisation.
+# Reorders 'time_pt' and generates UMAP plots for clusters, condition, time, and study.
+
+# **AMDSG/PSG Workflow:**
+# Similar steps: neighbors, clustering, UMAP, and reordering 'time_pt' with UMAP plots for condition, time, and study.
+
+# **Cell counts and proportions:**
+# Calculates and prints cell counts by condition and time.
+# Saves count and percentage tables as CSVs for both workflows.
+
+source("04_clustering.R")
+```
+8. trajectory analysis
+```{r trajectory analysis, echo=FALSE}
+# This code sources '05_trajectory_analysis.R', which performs trajectory inference using Slingshot for both AMDSG and standard workflows.
+
+# **AMDSG Workflow (seurat_integrated_genelist)**:
+# Extracts PCA embeddings and cluster assignments from the Seurat object.
+# Converts the embeddings and clusters into the required format for Slingshot.
+# Slingshot is used to infer cellular trajectories, starting from specific "starting samples" (e.g., M0_0h).
+# Determines the starting clusters based on these samples and runs Slingshot to infer pseudotime trajectories.
+#
+# **Pseudotime Calculation**:
+# Extracts pseudotime from the Slingshot object and adds it as metadata to the Seurat object.
+# Visualises pseudotime on a UMAP plot, coloured by pseudotime values for easy interpretation.
+#
+# This step helps visualise how cells transition over time and along developmental trajectories.
+source("05_trajectory_analysis.R")
+```
