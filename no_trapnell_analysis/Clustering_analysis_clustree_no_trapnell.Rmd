@@ -163,7 +163,6 @@ source("06_differential_expression_no_trap.R")
 # - Identifies marker genes for each cluster, retaining only positive markers with significant expression (adjusted p-value < 0.05).
 # - Saves DE gene markers by cluster in an Excel file, with separate sheets for each cluster.
 source("07_heatmap_no_trap.R")
-source("07_heamap_no_trap.R")
 ```
 10.Line plots and trend analysis
 ```{r Cluster 1 and 3 analysis (cluster set to res = 0.2)}
