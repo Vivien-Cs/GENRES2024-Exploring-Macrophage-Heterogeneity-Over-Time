@@ -1,0 +1,176 @@
+---
+title: "Clustering Analysis with Clustree"
+author: "Vivien Csonka"
+date: "2024-10-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+## Load essential packages for scRNA-seq analysis
+# This sources an external script containing all necessary library imports.
+# The script '00_pkg.R' includes packages for data manipulation (e.g., dplyr),
+# visualisation (e.g., ggplot2), and scRNA-seq analysis (e.g., Seurat).
+# **Important:** You need to change the 'base_path' variable to match the directory structure on your local machine. The 'base_path' specifies the root directory of the project. Ensure that it points to the correct location where your project files are stored.
+# The 'code_path' variable builds upon 'base_path' to locate the 'Integrated_prepare' directory, which contains the '00_pkg.R' script.
+# *Please read README.md and sessioninfo.md to know what packages must be installed before running R scripts*
+base_path <- "G:/My Drive/Viv_MACHS/"
+code_path <- paste0(base_path, "no_trapnell_analysis/")
+source(paste0(code_path, "00_pkg_no_trap.R"))
+```
+
+2. Import data 
+```{r datasets}
+# This sources an external script that handles the loading of raw data files.
+# The script '01_import_data.R' imports all necessary datasets for downstream analysis.
+# These datasets are processed into Seurat objects that will be used throughout the project.
+# It ensures the datasets are loaded consistently and reduces the chances of errors due to missing data files.
+# 
+source(paste0(code_path, "01_import_data_no_trap.R"))
+```
+3. Pre-process all datasets
+```{r pre-processing, echo=FALSE}
+# This script performs essential preprocessing steps on each Seurat object in the seuratObjList.
+# It includes quality control, gene filtering, and calculation of various metadata. 
+# These steps are critical for ensuring that the data is clean and ready for downstream analysis.
+#
+# Detailed explanation of the preprocessing steps:
+# 1. **Gene Filtering**:
+#    - Removes specific genes (e.g., 'Gm42418' and 'AY036118') that are known to represent rRNA contamination.
+#    - These genes overlap with the rRNA element Rn45s and are excluded to improve data quality and accuracy in downstream analyses.
+# 2. **Mitochondrial Gene Percentage**:
+#    - Calculates the percentage of mitochondrial genes for each cell.
+#    - This information is added as a new metadata column, 'percent.mt'.
+#    - Filters out cells with high mitochondrial content (commonly >10%), which often indicates low-quality or dying cells.
+# 3. **Ribosomal Protein Gene Percentages**:
+#    - Calculates the percentage of ribosomal protein S (RPS) genes and adds it as 'percent.rps'.
+#    - Calculates the percentage of ribosomal protein L (RPL) genes and adds it as 'percent.rpl'.
+#    - These metrics can be useful for assessing cell quality and detecting stressed or actively translating cells.
+# 4. **Quality Control Visualisation**:
+#    - Produces visualisations such as violin plots and scatter plots to show distributions of quality metrics (e.g., nFeature_RNA, nCount_RNA).
+#    - Prints summary statistics for each processed Seurat object, allowing for quick assessment of dataset quality.
+# 5. **Save Preprocessed Objects**:
+#    - After preprocessing, the list of Seurat objects (seuratObjList) is saved as an RDS file for later use.
+#    - The file is saved to the 'output_integrated' directory with the name 'preprocessed_seuratObjList.rds'.
+#    - This allows you to load the preprocessed data in future analyses without needing to repeat the preprocessing steps.
+# This preprocessing ensures that each Seurat object in seuratObjList is cleaned, filtered, and annotated with essential quality metrics.
+# The processed data is now ready for downstream analyses, such as clustering, differential expression analysis, and trajectory inference.
+
+source("02_preprocessing_no_trap.R")
+```
+4. Start here if pre-processed data is available
+```{r load seurat object list, echo=FALSE}
+# This code loads the preprocessed Seurat object list that was previously saved as an RDS file.
+# This step eliminates the need to re-run the preprocessing script, saving time when performing downstream analyses.
+# Make sure that the 'preprocessed_seuratObjList.rds' file exists in the specified directory before running this code.
+seuratObjList <- readRDS(paste0(output_integrated, "preprocessed_seuratObjList_no_trapnell.rds"))
+seuratObjList <- readRDS(paste0(output_integrated, "preprocessed_seuratObjList_no_trapnell.rds"))
+```
+5. Merge and integrate both in standard and gene list space
+```{r merge and integrate, echo=FALSE}
+# This code performs merging and integration of multiple Seurat objects for downstream analysis.
+
+### Merge Datasets ###
+#Merges multiple Seurat objects from `seuratObjList` into one object (`seurat_merged`).
+#Combines by condition and time, adding a new metadata column `condition_time`.
+#Reorders `condition_time` levels to match the desired sequence for analysis.
+ 
+### SCTransform Normalisation ###
+#Applies SCTransform with the glmGamPoi method, normalising the data and adjusting for mitochondrial and ribosomal content (`percent.mt`, `percent.rps`, `percent.rpl`).
+#Saves the top 2000 variable features to a CSV file.
+
+# ### AMDSG/PSG Workflow ###
+# Loads the gene lists (AMDSG/PSG) from Excel files for focused analysis.
+# Performs PCA using the gene list and displays an elbow plot for the PCA results.
+# Integrates data using the Harmony method and saves the integrated object.
+
+# ### Standard Workflow ###
+# Scales data using the top 2000 variable features for general analysis.
+# Runs PCA and displays an elbow plot for the standard workflow.
+# Integrates data using the Harmony method and saves the integrated object.
+
+# **Note:** Integrated objects are saved as `.rds` files for future use.
+source("03_merge_and_integrate_no_trap.R")
+```
+
+6. Start here if integrated object is available
+```{r read integrated objects, echo=FALSE}
+# **Important:** You can only start from this point if you already have the integrated Seurat objects saved as `.rds` files.
+# If the integration has not been completed or the `.rds` files are missing, you need to run the merging and integration steps above first.
+# 
+# This step loads the pre-integrated Seurat objects, saving time by avoiding re-running the merge and integration process:
+# `seurat_integrated_genelist`: AMDSG/PSG gene list-based integration.
+# `seurat_integrated_standard`: Standard workflow integration using the top 2000 variable genes.
+seurat_integrated_genelist<-readRDS(paste0(output_integrated, "seurat_integrated_amdsg_psg_no_trapnell.rds"))  
+seurat_integrated_standard<-readRDS(paste0(output_integrated, "seurat_integrated_no_trapnell.rds"))  
+```
+7. Run clustering
+```{r clustering, echo=FALSE}
+# This code sources '04_clustering.R', which performs clustering, dimensionality reduction, and visualisation for both the standard and AMDSG/PSG workflows.
+
+# **Standard Workflow:**
+# Finds neighbors (PCA, dims 1-10), identifies clusters (resolution 0.2), and runs UMAP for visualisation.
+# Reorders 'time_pt' and generates UMAP plots for clusters, condition, time, and study.
+
+# **AMDSG/PSG Workflow:**
+# Similar steps: neighbors, clustering, UMAP, and reordering 'time_pt' with UMAP plots for condition, time, and study.
+
+# **Cell counts and proportions:**
+# Calculates and prints cell counts by condition and time.
+# Saves count and percentage tables as CSVs for both workflows.
+source("04_clustering_no_trap.R")
+
+# sourcing "04_clustering.R" explores how clustering granularity changes with different resolution settings.
+
+# **Multi-resolution Clustering**:
+# - Loops through a range of resolutions (0.05 to 1.1) to find clusters at each level of granularity.
+# - For each resolution, `FindNeighbors` and `FindClusters` are run, and clusters are stored with a resolution-specific name.
+
+# **Clustree Visualisation**:
+# - Uses the `clustree` package to visualise the clustering hierarchy across resolutions.
+# - The Clustree plot helps assess the stability of clusters, showing how cells are grouped as resolution changes.
+source("04_clustree_no_trap.R")
+```
+8. Perform DE (Differential Expression)
+```{r differential expression, echo= FALSE}
+# **Setup for DE Analysis**:
+# - Sets 'condition_time' as the identity for DE comparison in `seurat_integrated_genelist`.
+# - Prepares the Seurat object with `PrepSCTFindMarkers`.
+
+# **Find All Markers**:
+# - Identifies marker genes for all 'condition_time' groups, only retaining positive markers.
+# - Filters markers with a minimum expression in 25% of cells and a minimum log fold change of 0.25.
+
+# **Significant DE Genes**:
+# - Filters the markers to retain only significant DE genes (adjusted p-value < 0.05).
+# - Saves the significant markers to 'markers_per_condition_time.csv'.
+
+# **Pairwise Condition Comparisons**:
+# - Loops through each unique pair of 'condition_time' groups to find DE genes.
+# - Runs pairwise comparisons using 'MAST' for DE analysis.
+# - Filters significant genes (adjusted p-value < 0.05) and saves the results for each pair.
+source("06_differential_expression_no_trap.R")
+```
+9.Load Heatmap
+```{r Heatmap, echo= FALSE}
+#  This script performs two tasks: generating a heatmap and running differential expression (DE) analysis by cluster.
+# **Heatmap Generation**:
+# - Counts the number of cells in each condition per cluster and calculates cell proportions.
+# - Organises data into a matrix with clusters as rows and conditions as columns for heatmap plotting.
+# - Plots a heatmap showing the proportion of cells across clusters and conditions, visualising cell population distributions.
+
+# **Differential Expression (DE) Analysis**:
+# - Sets cluster identities for DE analysis, renaming clusters from 0-based to 1-based numbering.
+# - Identifies marker genes for each cluster, retaining only positive markers with significant expression (adjusted p-value < 0.05).
+# - Saves DE gene markers by cluster in an Excel file, with separate sheets for each cluster.
+source("07_heatmap_no_trap.R")
+source("07_heamap_no_trap.R")
+```
+10.Line plots and trend analysis
+```{r Cluster 1 and 3 analysis (cluster set to res = 0.2)}
+# Loads scripts for line plotting and trend analysis for clusters 1 and 3.
+# - `08_line_plot_cluster.R` generates line plots of gene expression over time for clusters 1 and 3.
+# - `09_trend_classification_plots.R` performs trend classification (e.g., upward, downward) for genes in cluster 1 and 3, identifying distinct expression patterns and saving trend-specific plots.
+source("08_line_plot_cluster.R")
+source("09_trend_classification_plots.R")
+```
+
